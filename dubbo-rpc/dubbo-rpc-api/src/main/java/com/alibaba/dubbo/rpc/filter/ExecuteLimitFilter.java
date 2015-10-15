@@ -27,7 +27,7 @@ import com.alibaba.dubbo.rpc.RpcStatus;
 
 /**
  * ThreadLimitInvokerFilter
- * 
+ *
  * @author william.liangf
  */
 @Activate(group = Constants.PROVIDER, value = Constants.EXECUTES_KEY)
@@ -44,13 +44,13 @@ public class ExecuteLimitFilter implements Filter {
             }
         }
         long begin = System.currentTimeMillis();
-        boolean isException = false;
+        boolean isSuccess = false;
         RpcStatus.beginCount(url, methodName);
         try {
             Result result = invoker.invoke(invocation);
             return result;
         } catch (Throwable t) {
-            isException = true;
+            isSuccess = false;
             if(t instanceof RuntimeException) {
                 throw (RuntimeException) t;
             }
@@ -59,7 +59,7 @@ public class ExecuteLimitFilter implements Filter {
             }
         }
         finally {
-            RpcStatus.endCount(url, methodName, System.currentTimeMillis() - begin, isException);
+            RpcStatus.endCount(url, methodName, System.currentTimeMillis() - begin, isSuccess);
         }
     }
 
