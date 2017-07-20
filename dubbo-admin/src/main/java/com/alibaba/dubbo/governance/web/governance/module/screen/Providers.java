@@ -264,9 +264,21 @@ public class Providers extends Restful {
 				context.put("message", getMessage("NoSuchOperationData", id));
 				return false;
 			} else if (provider.isDynamic()) {
-				context.put("message", getMessage("CanNotDeleteDynamicData", id));
-				return false;
-			} else if (! super.currentUser.hasServicePrivilege(provider.getService())) {
+                List<Override> overrides = overrideService.findByServiceAndAddress(provider.getService(), provider.getAddress());
+                boolean disabled = false;
+                for (Override override : overrides) {
+                    Map<String, String> map = override.toParametersMap();
+                    boolean tmp = map.get("disabled") != null ? Boolean.parseBoolean(map.get("disabled")) : false;
+                    if (tmp == true) {
+                        disabled = true;
+                        break;
+                    }
+                }
+                if (!disabled) {
+                    context.put("message", getMessage("CanNotDeleteDynamicData", id));
+                    return false;
+                }
+            } else if (! super.currentUser.hasServicePrivilege(provider.getService())) {
 				context.put( "message", getMessage("HaveNoServicePrivilege", provider.getService()));
 				return false;
 			}
